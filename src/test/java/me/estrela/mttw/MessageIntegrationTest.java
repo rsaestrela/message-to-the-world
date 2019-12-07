@@ -1,6 +1,6 @@
 package me.estrela.mttw;
 
-import me.estrela.mttw.message.MessageDTO;
+import me.estrela.mttw.message.Message;
 import me.estrela.mttw.message.MessageEvent;
 import me.estrela.mttw.message.MessageRepository;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class MessageIntegrationTest {
             assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-            MessageDTO message = getMessage(messageEvent.getId());
+            Message message = getMessage(messageEvent.getId());
 
             assertEquals(messageEvent.getId(), message.getEventId());
             assertEquals(messageEvent.getAuthor(), message.getAuthor());
@@ -60,9 +60,9 @@ public class MessageIntegrationTest {
 
     }
 
-    private MessageDTO getMessage(String id) {
+    private Message getMessage(String id) {
         for (int i = 0; i < 3; i++) {
-            Optional<MessageDTO> message = messageRepository.findByEventId(id);
+            Optional<Message> message = messageRepository.findByEventId(id);
             if (message.isPresent()) {
                 return message.get();
             }

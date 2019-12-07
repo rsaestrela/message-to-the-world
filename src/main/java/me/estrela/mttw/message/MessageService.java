@@ -1,5 +1,6 @@
 package me.estrela.mttw.message;
 
+import com.google.common.flogger.FluentLogger;
 import me.estrela.mttw.TimeMachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.JmsException;
@@ -12,6 +13,8 @@ import java.util.Optional;
 
 @Component
 public class MessageService {
+
+    private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
     private static final long MESSAGE_DURATION = 5;
 
@@ -28,8 +31,8 @@ public class MessageService {
         try {
             jmsTemplate.convertAndSend("message_queue", messageEvent);
             return Optional.of(messageEvent);
-        } catch (JmsException ignore) {
-
+        } catch (JmsException jmsException) {
+            LOGGER.atSevere().withCause(jmsException).log("operation=publish msg='publish event failed'");
         }
         return Optional.empty();
     }
@@ -37,7 +40,7 @@ public class MessageService {
     @JmsListener(destination = "message_queue", containerFactory = "jmsListenerContainerFactory")
     public void handleMessageEvent(MessageEvent messageEvent) {
 
-        MessageDTO messageDTO = new MessageDTO.Builder()
+        Message message = new Message.Builder()
                 .withEventId(messageEvent.getId())
                 .withAuthor(messageEvent.getAuthor())
                 .withText(messageEvent.getText())
@@ -47,11 +50,11 @@ public class MessageService {
                 .withComputedPresentedDate(messageRepository.findLastMessage(), timeMachine.now(), MESSAGE_DURATION)
                 .build();
 
-        messageRepository.save(messageDTO);
+        messageRepository.save(message);
 
     }
 
-    public Optional<MessageDTO> currentMessage() {
+    public Optional<Message> currentMessage() {
         return messageRepository.findCurrentMessage(timeMachine.now());
     }
 

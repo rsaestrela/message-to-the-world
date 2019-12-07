@@ -7,12 +7,12 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 
-public interface MessageRepository extends GenericRepository<MessageDTO, MessageRecord> {
+public interface MessageRepository extends GenericRepository<Message, MessageRecord> {
 
-    Optional<MessageDTO> findLastMessage();
+    Optional<Message> findLastMessage();
 
-    Optional<MessageDTO> findCurrentMessage(LocalDateTime dateTime);
+    Optional<Message> findCurrentMessage(LocalDateTime dateTime);
 
-    Optional<MessageDTO> findByEventId(String eventId);
+    Optional<Message> findByEventId(String eventId);
 
 }
