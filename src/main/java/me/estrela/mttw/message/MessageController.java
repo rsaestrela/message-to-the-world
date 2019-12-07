@@ -23,7 +23,7 @@ public class MessageController {
     }
 
     @GetMapping(value = "/message", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<MessageDTO> currentMessage() {
+    public ResponseEntity<Message> currentMessage() {
         return messageService.currentMessage()
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

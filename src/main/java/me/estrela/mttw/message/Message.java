@@ -1,7 +1,6 @@
 package me.estrela.mttw.message;
 
 import me.estrela.mttw.DataTransferObject;
-import me.estrela.mttw.generated.tables.Message;
 import me.estrela.mttw.generated.tables.records.MessageRecord;
 import org.jooq.DSLContext;
 
@@ -9,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class MessageDTO implements DataTransferObject<MessageRecord> {
+public final class Message implements DataTransferObject<MessageRecord> {
 
     private final String id;
     private final String eventId;
@@ -20,7 +19,7 @@ public final class MessageDTO implements DataTransferObject<MessageRecord> {
     private final LocalDateTime publishedDate;
     private final LocalDateTime presentedDate;
 
-    private MessageDTO(Builder builder) {
+    private Message(Builder builder) {
         this.id = builder.id != null ? builder.id : UUID.randomUUID().toString();
         this.eventId = builder.eventId;
         this.text = builder.text;
@@ -114,12 +113,12 @@ public final class MessageDTO implements DataTransferObject<MessageRecord> {
             return this;
         }
 
-        public Builder withComputedPresentedDate(Optional<MessageDTO> lastMessage, LocalDateTime timeReference, long messageDuration) {
+        public Builder withComputedPresentedDate(Optional<Message> lastMessage, LocalDateTime timeReference, long messageDuration) {
             this.presentedDate = getPresentedDate(lastMessage, timeReference, messageDuration);
             return this;
         }
 
-        private LocalDateTime getPresentedDate(Optional<MessageDTO> lastMessage, LocalDateTime timeReference, long messageDuration) {
+        private LocalDateTime getPresentedDate(Optional<Message> lastMessage, LocalDateTime timeReference, long messageDuration) {
             return lastMessage.map(lm -> {
                 LocalDateTime lastMessagePresented = lm.getPresentedDate();
                 if (lastMessagePresented.isBefore(timeReference.minusSeconds(messageDuration))) {
@@ -130,13 +129,13 @@ public final class MessageDTO implements DataTransferObject<MessageRecord> {
             }).orElse(timeReference);
         }
 
-        public MessageDTO build() {
-            return new MessageDTO(this);
+        public Message build() {
+            return new Message(this);
         }
 
     }
 
-    public static Optional<MessageDTO> fromRecord(MessageRecord messageRecord) {
+    public static Optional<Message> fromRecord(MessageRecord messageRecord) {
         return Optional.ofNullable(messageRecord).map(mr -> new Builder()
                 .withId(mr.getId())
                 .withEventId(mr.getEventId())
@@ -151,21 +150,21 @@ public final class MessageDTO implements DataTransferObject<MessageRecord> {
 
     @Override
     public MessageRecord toRecord(DSLContext dsl) {
-        MessageRecord newMessage = dsl.newRecord(Message.MESSAGE);
-        newMessage.setId(this.id);
-        newMessage.setEventId(this.eventId);
-        newMessage.setAuthor(this.author);
-        newMessage.setText(this.text);
-        newMessage.setUpVotes(this.upVotes);
-        newMessage.setDownVotes(this.downVotes);
-        newMessage.setPublishedDate(this.publishedDate);
-        newMessage.setPresentedDate(this.presentedDate);
-        return newMessage;
+        MessageRecord message = dsl.newRecord(me.estrela.mttw.generated.tables.Message.MESSAGE);
+        message.setId(this.id);
+        message.setEventId(this.eventId);
+        message.setAuthor(this.author);
+        message.setText(this.text);
+        message.setUpVotes(this.upVotes);
+        message.setDownVotes(this.downVotes);
+        message.setPublishedDate(this.publishedDate);
+        message.setPresentedDate(this.presentedDate);
+        return message;
     }
 
     @Override
     public String toString() {
-        return String.format("MessageDTO (id=%s, eventId=%s, text=%s, author=%s, upVotes=%s, downVotes=%s, " +
+        return String.format("Message (id=%s, eventId=%s, text=%s, author=%s, upVotes=%s, downVotes=%s, " +
                         "publishedDate=%s, presentedDate=%s)", this.id, this.eventId, this.text, this.author,
                 this.upVotes, this.downVotes, this.publishedDate, this.presentedDate);
     }

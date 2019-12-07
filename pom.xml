@@ -13,9 +13,23 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>message-to-the-world</name>
 	<description>Message to the world</description>
+	<contributors>
+		<contributor>
+			<name>Raul Estrela</name>
+			<email>rsaestrela@gmail.com</email>
+		</contributor>
+	</contributors>
 
 	<properties>
-		<java.version>1.8</java.version>
+		<java-version>1.8</java-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<org.maven.checkstyleplugin-version>2.9.1</org.maven.checkstyleplugin-version>
+		<checkstyle.version>7.0</checkstyle.version>
+		<maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+		<org.jococo-version>0.8.4</org.jococo-version>
+		<flyway-core.version>6.0.8</flyway-core.version>
+		<jooq.version>3.12.3</jooq.version>
+		<flogger.version>0.4</flogger.version>
 	</properties>
 
 	<dependencies>
@@ -32,9 +46,17 @@
 			<artifactId>spring-boot-starter-activemq</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
-			<version>6.0.8</version>
+			<version>${flyway-core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -47,35 +69,32 @@
 		<dependency>
 			<groupId>org.jooq</groupId>
 			<artifactId>jooq</artifactId>
-			<version>3.12.3</version>
+			<version>${jooq.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jooq</groupId>
 			<artifactId>jooq-meta</artifactId>
-			<version>3.12.3</version>
+			<version>${jooq.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jooq</groupId>
 			<artifactId>jooq-codegen</artifactId>
-			<version>3.12.3</version>
+			<version>${jooq.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jooq</groupId>
 			<artifactId>jooq-meta-extensions</artifactId>
-			<version>3.12.3</version>
+			<version>${jooq.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.activemq</groupId>
-			<artifactId>activemq-broker</artifactId>
+			<groupId>com.google.flogger</groupId>
+			<artifactId>flogger</artifactId>
+			<version>${flogger.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-jsr310</artifactId>
-			<version>2.10.1</version>
+			<groupId>com.google.flogger</groupId>
+			<artifactId>flogger-system-backend</artifactId>
+			<version>${flogger.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -86,6 +105,13 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -128,9 +154,9 @@
 							</jdbc>
 							<generator>
 								<generate>
-									<pojos>true</pojos>
-									<daos>true</daos>
-									<pojosEqualsAndHashCode>true</pojosEqualsAndHashCode>
+									<pojos>false</pojos>
+									<daos>false</daos>
+									<pojosEqualsAndHashCode>false</pojosEqualsAndHashCode>
 									<javaTimeTypes>true</javaTimeTypes>
 								</generate>
 								<database>
@@ -163,6 +189,32 @@
 						<groupId>org.jooq</groupId>
 						<artifactId>jooq-meta-extensions</artifactId>
 						<version>3.12.3</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${maven-checkstyle-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<configLocation>mttw_checks.xml</configLocation>
+					<consoleOutput>true</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<violationSeverity>warning</violationSeverity>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>7.0</version>
 					</dependency>
 				</dependencies>
 			</plugin>
