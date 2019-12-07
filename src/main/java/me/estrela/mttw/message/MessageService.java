@@ -8,7 +8,6 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Component;
 
-import java.time.ZoneId;
 import java.util.Optional;
 
 @Component
@@ -44,10 +43,8 @@ public class MessageService {
                 .withEventId(messageEvent.getId())
                 .withAuthor(messageEvent.getAuthor())
                 .withText(messageEvent.getText())
-                .withPublishedDate(messageEvent.getCreatedDate().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDateTime())
-                .withComputedPresentedDate(messageRepository.findLastMessage(), timeMachine.now(), MESSAGE_DURATION)
+                .withPublishedDate(messageEvent.getRequestDate())
+                .withComputedPresentedDate(messageRepository.findLastMessage(), timeMachine.utc(), MESSAGE_DURATION)
                 .build();
 
         messageRepository.save(message);
@@ -55,7 +52,7 @@ public class MessageService {
     }
 
     public Optional<Message> currentMessage() {
-        return messageRepository.findCurrentMessage(timeMachine.now());
+        return messageRepository.findCurrentMessage(timeMachine.utc());
     }
 
 }
