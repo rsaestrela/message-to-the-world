@@ -33,15 +33,19 @@ public class MessageIntegrationTest {
     @Autowired
     private MessageRepository messageRepository;
 
+    @Autowired
+    private TimeMachine timeMachine;
+
     @Test
     public void shouldBeAbleToPublishAndStoreMessages() {
         messageRepository.deleteAll();
 
         for (int i = 0; i < 10; i++) {
 
-            MessageEvent messageEvent = new MessageEvent();
-            messageEvent.setAuthor("test");
-            messageEvent.setText(UUID.randomUUID().toString());
+            MessageEvent messageEvent = new MessageEvent.Builder()
+                    .withAuthor("test")
+                    .withText(UUID.randomUUID().toString())
+                    .build(timeMachine.utc());
 
             ResponseEntity response = this.restTemplate.postForEntity(getUrl("/message", port), messageEvent, MessageEvent.class);
 

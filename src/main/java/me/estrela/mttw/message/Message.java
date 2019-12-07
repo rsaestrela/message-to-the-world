@@ -1,6 +1,7 @@
 package me.estrela.mttw.message;
 
 import me.estrela.mttw.DataTransferObject;
+import me.estrela.mttw.TimeMachine;
 import me.estrela.mttw.generated.tables.records.MessageRecord;
 import org.jooq.DSLContext;
 
@@ -113,20 +114,20 @@ public final class Message implements DataTransferObject<MessageRecord> {
             return this;
         }
 
-        public Builder withComputedPresentedDate(Optional<Message> lastMessage, LocalDateTime timeReference, long messageDuration) {
-            this.presentedDate = getPresentedDate(lastMessage, timeReference, messageDuration);
+        public Builder withComputedPresentedDate(Optional<Message> lastMessage, TimeMachine.Zoned zoned, long messageDuration) {
+            this.presentedDate = getPresentedDate(lastMessage, zoned, messageDuration);
             return this;
         }
 
-        private LocalDateTime getPresentedDate(Optional<Message> lastMessage, LocalDateTime timeReference, long messageDuration) {
+        private LocalDateTime getPresentedDate(Optional<Message> lastMessage, TimeMachine.Zoned zoned, long messageDuration) {
             return lastMessage.map(lm -> {
                 LocalDateTime lastMessagePresented = lm.getPresentedDate();
-                if (lastMessagePresented.isBefore(timeReference.minusSeconds(messageDuration))) {
-                    return timeReference;
+                if (lastMessagePresented.isBefore(zoned.nowMinusSeconds(messageDuration))) {
+                    return zoned.now();
                 } else {
                     return lastMessagePresented.plusSeconds(messageDuration);
                 }
-            }).orElse(timeReference);
+            }).orElse(zoned.now());
         }
 
         public Message build() {

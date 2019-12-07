@@ -1,13 +1,13 @@
 package me.estrela.mttw.message;
 
 import me.estrela.mttw.JooqRepositoryImpl;
+import me.estrela.mttw.TimeMachine;
 import me.estrela.mttw.generated.tables.records.MessageRecord;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -34,10 +34,10 @@ public class MessageRepositoryImpl extends JooqRepositoryImpl<Message, MessageRe
 
     @Transactional
     @Override
-    public Optional<Message> findCurrentMessage(LocalDateTime dateTime) {
+    public Optional<Message> findCurrentMessage(TimeMachine.Zoned zoned) {
         return Message.fromRecord(
                 dsl.selectFrom(table)
-                        .where(table.PRESENTED_DATE.greaterThan(dateTime))
+                        .where(table.PRESENTED_DATE.greaterThan(zoned.now()))
                         .orderBy(table.PRESENTED_DATE.asc())
                         .limit(1)
                         .fetchOne());

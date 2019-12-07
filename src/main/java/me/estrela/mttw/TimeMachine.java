@@ -8,8 +8,27 @@ import java.time.ZoneOffset;
 @Component
 public class TimeMachine {
 
-    public LocalDateTime now() {
-        return LocalDateTime.now(ZoneOffset.UTC);
+    public Zoned utc() {
+        return new Zoned(ZoneOffset.UTC);
+    }
+
+    @SuppressWarnings("InnerClassMayBeStatic")
+    public class Zoned {
+
+        private final LocalDateTime now;
+
+        public Zoned(ZoneOffset zoneOffset) {
+            this.now = LocalDateTime.now(zoneOffset);
+        }
+
+        public LocalDateTime now() {
+            return now;
+        }
+
+        public LocalDateTime nowMinusSeconds(long seconds) {
+            return now.minusSeconds(seconds);
+        }
+
     }
 
 }
