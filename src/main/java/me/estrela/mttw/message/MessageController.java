@@ -16,14 +16,17 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping(value = "/message", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity publish(@RequestBody MessageEvent messageEvent) {
-        messageService.publish(messageEvent);
-        return ResponseEntity.status(HttpStatus.CREATED).body(messageEvent);
+    public ResponseEntity<MessageEvent> publishMessage(@RequestBody MessageEvent messageEvent) {
+        return messageService.publish(messageEvent)
+                .map(me -> ResponseEntity.status(HttpStatus.CREATED).body(me))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
     @GetMapping(value = "/message", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Message> currentMessage() {
-        throw new UnsupportedOperationException();
+    public ResponseEntity<MessageDTO> currentMessage() {
+        return messageService.currentMessage()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

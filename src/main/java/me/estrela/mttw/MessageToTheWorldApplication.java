@@ -1,9 +1,14 @@
 package me.estrela.mttw;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jooq.conf.RenderNameStyle;
+import org.jooq.conf.Settings;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
+import org.springframework.boot.autoconfigure.jooq.JooqAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
@@ -15,7 +20,10 @@ import org.springframework.jms.support.converter.MessageType;
 import javax.jms.ConnectionFactory;
 
 @EnableJms
-
+@EnableAutoConfiguration(exclude = {
+        SecurityAutoConfiguration.class,
+        JooqAutoConfiguration.class
+})
 @SpringBootApplication
 public class MessageToTheWorldApplication {
 
@@ -38,6 +46,11 @@ public class MessageToTheWorldApplication {
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
         return converter;
+    }
+
+    @Bean
+    public Settings jooqSettings() {
+        return new Settings().withRenderNameStyle(RenderNameStyle.AS_IS);
     }
 
 }

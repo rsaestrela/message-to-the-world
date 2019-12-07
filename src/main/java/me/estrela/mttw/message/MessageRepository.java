@@ -1,11 +1,18 @@
 package me.estrela.mttw.message;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import me.estrela.mttw.GenericRepository;
+import me.estrela.mttw.generated.tables.records.MessageRecord;
 
-@Repository
-public interface MessageRepository extends JpaRepository<Message, String> {
+import java.time.LocalDateTime;
+import java.util.Optional;
 
-    Message findByEventId(String eventId);
+
+public interface MessageRepository extends GenericRepository<MessageDTO, MessageRecord> {
+
+    Optional<MessageDTO> findLastMessage();
+
+    Optional<MessageDTO> findCurrentMessage(LocalDateTime dateTime);
+
+    Optional<MessageDTO> findByEventId(String eventId);
 
 }

@@ -1,6 +1,6 @@
 package me.estrela.mttw;
 
-import me.estrela.mttw.message.Message;
+import me.estrela.mttw.message.MessageDTO;
 import me.estrela.mttw.message.MessageEvent;
 import me.estrela.mttw.message.MessageRepository;
 import org.junit.Test;
@@ -14,10 +14,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.ZoneId;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,7 +37,7 @@ public class MessageIntegrationTest {
     public void shouldBeAbleToPublishAndStoreMessages() {
         messageRepository.deleteAll();
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 10; i++) {
 
             MessageEvent messageEvent = new MessageEvent();
             messageEvent.setAuthor("test");
@@ -47,27 +48,23 @@ public class MessageIntegrationTest {
             assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
             assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-            Message message = getMessage(messageEvent.getId());
+            MessageDTO message = getMessage(messageEvent.getId());
 
             assertEquals(messageEvent.getId(), message.getEventId());
             assertEquals(messageEvent.getAuthor(), message.getAuthor());
             assertEquals(messageEvent.getText(), message.getText());
-            assertEquals(messageEvent.getCreatedDate().toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime(), message.getPublishedDate());
             assertEquals(0, message.getUpVotes());
             assertEquals(0, message.getDownVotes());
-            assertNull(message.getPresentedDate());
 
         }
 
     }
 
-    private Message getMessage(String id) {
+    private MessageDTO getMessage(String id) {
         for (int i = 0; i < 3; i++) {
-            Message message = messageRepository.findByEventId(id);
-            if (message != null) {
-                return message;
+            Optional<MessageDTO> message = messageRepository.findByEventId(id);
+            if (message.isPresent()) {
+                return message.get();
             }
             try {
                 Thread.sleep(500L);
