@@ -1,0 +1,11 @@
+dist: trusty
+language: java
+services:
+  - docker
+jdk:
+  - oraclejdk8
+before_install:
+  - docker-compose up -d
+  - chmod +x mvnw
+script:
+  - ./mvnw clean install
