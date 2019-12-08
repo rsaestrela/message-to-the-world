@@ -3,6 +3,7 @@ package me.estrela.mttw;
 import me.estrela.mttw.message.Message;
 import me.estrela.mttw.message.MessageEvent;
 import me.estrela.mttw.message.MessageRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,13 @@ public class MessageIntegrationTest {
     @Autowired
     private TimeMachine timeMachine;
 
+    @Before
+    public void cleanUp() {
+        messageRepository.deleteAll();
+    }
+
     @Test
     public void shouldBeAbleToPublishAndStoreMessages() {
-        messageRepository.deleteAll();
 
         for (int i = 0; i < 10; i++) {
 

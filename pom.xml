@@ -209,6 +209,58 @@
 					<violationSeverity>warning</violationSeverity>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${org.jococo-version}</version>
+				<configuration>
+					<excludes>
+						<exclude>me/estrela/mttw/MessageToTheWorldApplication.**</exclude>
+						<exclude>me/estrela/mttw/ErrorHandlerAdvice.**</exclude>
+						<exclude>me/estrela/mttw/generated/**.**</exclude>
+						<exclude>me/estrela/mttw/generated/tables/**.**</exclude>
+						<exclude>me/estrela/mttw/generated/tables/records/**.**</exclude>
+					</excludes>
+					<rules>
+						<rule>
+							<element>CLASS</element>
+							<limits>
+								<limit>
+									<counter>LINE</counter>
+									<value>COVEREDRATIO</value>
+									<minimum>0.85</minimum>
+								</limit>
+								<limit>
+									<counter>BRANCH</counter>
+									<value>COVEREDRATIO</value>
+									<minimum>0.85</minimum>
+								</limit>
+							</limits>
+						</rule>
+					</rules>
+				</configuration>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>check</id>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

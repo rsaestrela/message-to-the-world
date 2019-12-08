@@ -37,7 +37,7 @@ public class MessageRepositoryImpl extends JooqRepositoryImpl<Message, MessageRe
     public Optional<Message> findCurrentMessage(TimeMachine.Zoned zoned) {
         return Message.fromRecord(
                 dsl.selectFrom(table)
-                        .where(table.PRESENTED_DATE.greaterThan(zoned.now()))
+                        .where(table.PRESENTED_DATE.greaterOrEqual(zoned.now()))
                         .orderBy(table.PRESENTED_DATE.asc())
                         .limit(1)
                         .fetchOne());
