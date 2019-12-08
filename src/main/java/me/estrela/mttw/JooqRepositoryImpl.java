@@ -8,14 +8,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class JooqRepositoryImpl<T extends DataTransferObject<R>, R extends UpdatableRecordImpl<R>> {
 
+    @Autowired
+    private DSLContext dsl;
+
     private final TableImpl<R> table;
 
     public JooqRepositoryImpl(TableImpl<R> table) {
         this.table = table;
     }
 
-    @Autowired
-    private DSLContext dsl;
+    @Transactional
+    public long count() {
+        return dsl.fetchCount(table);
+    }
 
     @Transactional
     public void save(T t) {

@@ -15,7 +15,7 @@ public class MessageService {
 
     private static final FluentLogger LOGGER = FluentLogger.forEnclosingClass();
 
-    private static final long MESSAGE_DURATION = 5;
+    private static final long MESSAGE_DURATION_S = 5;
 
     @Autowired
     private JmsTemplate jmsTemplate;
@@ -44,7 +44,7 @@ public class MessageService {
                 .withAuthor(messageEvent.getAuthor())
                 .withText(messageEvent.getText())
                 .withPublishedDate(messageEvent.getRequestDate())
-                .withComputedPresentedDate(messageRepository.findLastMessage(), timeMachine.utc(), MESSAGE_DURATION)
+                .withComputedPresentedDate(messageRepository.findLastMessage(), timeMachine.utc(), MESSAGE_DURATION_S)
                 .build();
 
         messageRepository.save(message);
