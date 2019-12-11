@@ -11,7 +11,7 @@
 	<groupId>me.estrela</groupId>
 	<artifactId>mttw</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>message-to-the-world</name>
+	<name>mttw</name>
 	<description>Message to the world</description>
 	<contributors>
 		<contributor>
@@ -145,10 +145,10 @@
 						</goals>
 						<configuration>
 							<jdbc>
-								<driver>${db.driver}</driver>
-								<url>${db.url}</url>
-								<user>${db.username}</user>
-								<password>${db.password}</password>
+								<driver>${spring.datasource.driver-class-name}</driver>
+								<url>${spring.datasource.url}</url>
+								<user>${spring.datasource.username}</user>
+								<password>${spring.datasource.password}</password>
 							</jdbc>
 							<generator>
 								<generate>
