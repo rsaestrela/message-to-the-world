@@ -1,39 +1,30 @@
-version: "2.1"
-
+version: "3.3"
 services:
-
   activemq:
     image: webcenter/activemq:5.14.3
     ports:
-      # mqtt
       - "1883:1883"
-      # amqp
       - "5672:5672"
-      # ui
       - "8161:8161"
-      # stomp
       - "61613:61613"
-      # ws
       - "61614:61614"
-      # jms
       - "61616:61616"
     networks: [backing-services]
     volumes: ["activemq-data:/opt/activemq/conf", "activemq-data:/data/activemq", "activemq-data:/var/log/activemq"]
     environment:
       ACTIVEMQ_REMOVE_DEFAULT_ACCOUNT: "true"
       ACTIVEMQ_ADMIN_LOGIN: admin
-      ACTIVEMQ_ADMIN_PASSWORD: password
+      ACTIVEMQ_ADMIN_PASSWORD: ${MB_PASSWORD}
       ACTIVEMQ_WRITE_LOGIN: producer
-      ACTIVEMQ_WRITE_PASSWORD: password
+      ACTIVEMQ_WRITE_PASSWORD: ${MB_PASSWORD}
       ACTIVEMQ_READ_LOGIN: consumer
-      ACTIVEMQ_READ_PASSWORD: password
+      ACTIVEMQ_READ_PASSWORD: ${MB_PASSWORD}
       ACTIVEMQ_JMX_LOGIN: jmx
-      ACTIVEMQ_JMX_PASSWORD: password
+      ACTIVEMQ_JMX_PASSWORD: ${MB_PASSWORD}
       ACTIVEMQ_STATIC_QUEUES: message_queue
       ACTIVEMQ_ENABLED_SCHEDULER: "true"
       ACTIVEMQ_MIN_MEMORY: 512
       ACTIVEMQ_MAX_MEMORY: 2048
-
   postgres:
     image: healthcheck/postgres:alpine
     ports: ["5455:5432"]
@@ -41,13 +32,11 @@ services:
     volumes: ["postgres-data:/var/lib/postgresql/data"]
     environment:
       POSTGRES_DB: mttw
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
 volumes:
   activemq-data: {}
   postgres-data: {}
-
 networks:
   backing-services:
     driver: bridge
