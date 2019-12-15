@@ -23,8 +23,9 @@ jobs:
         - docker-compose -f infrastructure/docker-compose-services.yml up -d
         - chmod +x mvnw
       script:
-        - "./mvnw clean install"
+        - "./mvnw install"
     - stage: deploy
+      language: bash
       env:
         - CLOUDSDK_CORE_DISABLE_PROMPTS=1
         - secure: RUgNAcjD3mDVEUAnWsgBaS3MAcT+9AarowAmhROeY+qkERKvXlV/fGgMLg6kHbybO9hW4m4HvQubhBEuAXcBb7/OtSNfE9+IeBqE9Z32GFsw6SlBdhImmMX3xQ2GMPWtDglzpIheCCeSf6W89p7Ewh3nD0+Bmng/ldtfFcFCr1ehtYWrnFSkLmjAD7V6Ozdb+nC/FknDLyRU+6+Wn4OfK59BiJGR8c9YVdGdkuCUXeWX1mWdR/QkIL1oC2Nb5JXtIzUmgIT/bRDjwJa5+H11vLKFUsQGEMbUxnl6QH2mo9iv2TjBjR94YYOBNWjkBrYTZ0VCdrOQP+ZKoBbSIvZ51Zy6zdIXuiNclMc7aTzy0VBImTa3Dk85NutfJsPkiPD/mfwAteynfg+dLKAfmvwGym93Q+NKKeIm9oaeCkN2HmHfZxUKYFjovfRVogKk3iNZRztGLRYrt5kz59TS0ofjzZBCx0EBN7Wn+5nAj7ITEnDcBagO1DSoQNkaBQFL4+Iunpph0KYYFs7sQYHTn/unzbiV984XmOKHQnGIXar6kB1ehJfWASE4gQdcbd10ZW+ITIJbPRVqjOCuMxAGh5PQ5bZaSanef6P+DdMSna7ZQ/tN1RTcfSeU5X8y+ZWmKX1hA1iqURaPXcvT9bjZGweQ6FwHmuIxqDgkPpPWz+W0KZo=
