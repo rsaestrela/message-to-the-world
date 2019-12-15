@@ -28,7 +28,7 @@ before_install:
   - gcloud version
   - chmod +x mvnw
 script:
-  - "./mvnw clean install"
+  - ./mvnw clean install
 deploy:
   provider: script
   script: bash infrastructure/push_image_gcr.sh
