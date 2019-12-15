@@ -8,4 +8,4 @@ echo "$GC_KEY" | base64 --decode -i >"$HOME"/gcloud-service-key.json
 
 gcloud auth activate-service-account --key-file "${HOME}"/gcloud-service-key.json
 
-docker push eu.gcr.io/"$GC_APP_ID"/mttw_app:"$VERSION"
+gcloud docker --push eu.gcr.io/"$GC_APP_ID"/mttw_app:"$VERSION"
