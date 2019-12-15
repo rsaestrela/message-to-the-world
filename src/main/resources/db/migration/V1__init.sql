@@ -1,4 +1,4 @@
-CREATE TABLE public.MESSAGE (
+CREATE TABLE api.MESSAGE (
     ID varchar(255) NOT NULL,
     EVENT_ID varchar(255) NOT NULL,
     TEXT varchar(255) NOT NULL,

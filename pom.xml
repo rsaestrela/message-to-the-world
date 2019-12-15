@@ -159,9 +159,9 @@
 								</generate>
 								<database>
 									<name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
-									<inputSchema>PUBLIC</inputSchema>
-									<outputSchemaToDefault>true</outputSchemaToDefault>
-									<outputCatalogToDefault>true</outputCatalogToDefault>
+									<inputSchema>API</inputSchema>
+									<outputSchemaToDefault>false</outputSchemaToDefault>
+									<outputCatalogToDefault>false</outputCatalogToDefault>
 									<properties>
 										<property>
 											<key>sort</key>

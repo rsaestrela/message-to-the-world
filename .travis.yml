@@ -1,11 +1,64 @@
+sudo: required
 dist: trusty
-language: java
 services:
   - docker
-jdk:
-  - oraclejdk8
-before_install:
-  - docker-compose -f docker-compose-services.yml up -d
-  - chmod +x mvnw
-script:
-  - ./mvnw clean install
+stages:
+  - name: build
+    if: branch = dockerize_service
+  - name: deploy
+    if: branch = dockerize_service
+jobs:
+  include:
+    - stage: build
+      language: java
+      jdk:
+        - oraclejdk8
+      env:
+        - MB_URL="tcp://localhost:61616?jms.redeliveryPolicy.maximumRedeliveries=1"
+        - MB_USER=admin
+        - MB_PASSWORD=password
+        - DB_URL="jdbc:postgresql://localhost:5455/mttw?currentSchema=api"
+        - DB_USER=user
+        - DB_PASSWORD=password
+      before_install:
+        - docker-compose -f infrastructure/docker-compose-services.yml up -d
+        - chmod +x mvnw
+      script:
+        - "./mvnw install"
+      before_deploy:
+        - git config --local user.name "raul.estrela"
+        - git config --local user.email "rsaestrela@gmail.com"
+        - git tag $TRAVIS_BUILD_NUMBER
+      deploy:
+        provider: releases
+        api_key:
+          secure: dubW7++ixLKrOFX/bC1at+ryGC25ADHdvPwgnvFG4Ks26zD3tjUgvGaV1AI88JeyiyXbKffaVeMDHY12z1lOhGCkitfVRNMSW1Z2uriOBaYA7y6QWAgxGOozO35jA3HoiAkcwfqbIh8CEqVwVgFq0pXityw/6Id5OIMNLm6c0QQT65XVntpuPKGyplQCgkpo1cY42NWUhmeU6iYcCYlVCSKyIzZD8NEcM36k2HZuC3UJwciqyRvtP0+v4MuvRzJ6/ItGudTJVj+ddVjUv2q0ph7qzBg/DiWMXZ8zbNBpLB59iL5q2qGc59HybNu6/iF+SIU8zBKwq6Ed8kasCjtpWCR7Di9hRFom7oCL51nugsBkNJzLubqpaYElET00t49a/b+28s+MF4k5WwzEFdp7ZiOQurrhAdGrvjOEfYmf4VAXLv9VtSg0wHfz8qKjwvr8uv6ixEgZM0bXUSx1JeF71486g5/qvAh55D3xTttjCEec9RqWRHyQ1J3hh4Oo3nIjJlbLaev8fl4PLTcv1Ih1K4MCRKncRHvxc2xeIkMjlzOxmZNMMa8SZsQ6cP0+kzWIS4uGAOE/4coyAWcgX5LCiPaXnVTH5owfjWXWYKQ0IfHP2B09JAarTllAj8FZO2qL0H4B667iQgDcGpaCLwX4Hu49vpGyY7UFE1ODqMyvClM=
+        file: target/mttw-0.0.1-SNAPSHOT.jar
+        skip_cleanup: true
+        on:
+          repo: rsaestrela/message-to-the-world
+          branch: dockerize_service
+    - stage: deploy
+      language: bash
+      env:
+        - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+        - secure: KGcVGwMFY9Sh8sp5VZD2TTcODA/bvA/zi17QjRQfBtzqbSx3MRzOCdboqaEH+SUgg0IhJe6N4CI3SpaDFYdSfdP1yn9Gfy5Bxd0QCn6V4bw3imryj/tE/rMFYDkt/smtRKVt5K/s3k2EwVJcMcYTNXwCW770Y0uTbSVjyWpUEW9rQtGQuqhUZnNH4MP8Jt+h9kYZIe50+CIVvWdfk4z1E2dTY6j2uuURS2pUqsAtMd+uOR3y1iP//gq2aySGTLuyswtg3MzYWzeobu4YQ3dT2VnbEXT4ptEBmi8wxbTFPodo4DZeo8Ph/6LNNSbRldnNab5b1MLMHRqY2Fv+vWbdafajunNy1tf3LDHsoz8mO8d3XXMK2ODbjx4xehL2wEIfuc/ITMS57NOAAFYfqHjACWuMnW6jgDGpuxS20LgsVvqXZRp0Qf0rqTtU+EsZ0S4i6cDFI23tN4WCLN9aE202ldPc/cGpTMY/yYl7tcSvhWe4ThsqWyDuiZPD6LzvaE9/UsludQ0Cl11CZ8WzAwkLnW/s8m6HTgV5fxqNDtKMMvQ5ND0ANzrtpaDUWz1jk0F0ZRiW2st2MpNyC0jMzjBayqEzJ25QlcRFooTUVCLWyHhwh6EW7xGhRdmrrPQSXXj5oOkn6AGS5EG7WnA+JxLH2HYhUjqGnjykeHIuSfW2vH8=
+        - secure: swfemwHKNTmPlY+BvQBowtrrqCehTh7dwFaouLnYXi65as4dT9n3YRc03eN/VfIsE6fg1OfJ6FD/N2/flsmB1kNM22l1g6rA+MY+7Q40fKafH2sPI0JnZvE531qj0hK+8Yiu5Mg+b8j2hQ09INC6dvsENqfavjJNK5twDBeqyGM1kkJovQXioMoWML1tPSXLgwdlflw/vLT0aAET7j3l1Cq4/6jkrMj/cK+R7dyJ2bOgJFNA6aE73cRR/EpJwFqWaav2Zh1GnAgVMS3gEFh7AHvLeBg4hsxTi0vJ2L9yaGoxV8j2TufIJmBXo1jRB4tRV8wDji9iM2sKnEOyMRpT3oRlFiVVH26hbnfyT8imXy2jdXQJA3UoMJtxD/LwCWhiQXPZpvkeHzn+IhI8axUkfBzGJYMmE7SWvLXzi6uZyNS37cno6XHZVjMGfHBo423ph5UwMMO8+KWaa29BGmIW2dEZtHQ0uBxe+6hKXxpjjDnB4tBMIin7wQlt7kKIcdKQbU4gi9T9Ukdn819gSfJn2qXpqTby/9aoD9ppP0xxbXd439bV2fvHRxUqXnu3UVupLi3XuYiB/iWKiaYH9CFgZUfVlyxfj05gmyX5PEvwIN6njFmX6mxuZSNDLqeGgYL/O0HTqgRtROE8UJ7apInaiHt4P9BlYLK7NYEdFSsVC1o=
+        - secure: d/t+mbMLyZSPP08a0ff45o03IQqz2VA1i5dO60PtMlZKik8RUQUu6tKbgepQP1wI+F1VAW1RozRaRkXq+ig1R3EdtKLCT2kYT/h4bs5M5UgKnwP7JUC0SirKFLdj0mcMJOPzunjfbmQ1AY1NbZCBTPtdau7zxVGX7L+7590Iuuf7VyDP59FY17zRG/73gcQK1yzGLCODqxMYfqCOykuWN7B+u5amJdRMp4ih7Je4KYTSJmNynh7Zb1oenrTUizVxbu4zGTGTtSH7FhvEx71AiJqNjwE7hhxt37KuLksaywj6jqimtfgiKvA3eTh/oZf4bN1G2bRK67FLh5QpyicSR9H9lLUz5Y0Ch9m4+z45MHXcMPhtatODeMxLD00Uv3y4ek9K1uoq6W0HBeKgZxoDEq/Xr5F+hjAZRDTxvIk/cJng0ayrBGfo3lw2YgCjoMgz9B+oVWntBdmc5uqJz8Ez+4MCg4VY9is9Gix5R7rGO1lBrh8PswEIySI4cn+Ojq7PiC8pYQ7VUyw/Et+EuNTjNZYYJ7j9tP9/bprZffTFx7oZdeExnDBsOS1OhEQy2m9FEwNNwfsTiLVvEeCrwzR9E22poOUW4JLbTfxNFE/EmV9X0aKYI4IDiDruNCsQL6DbhvUBD34JsIten+n9cZw5Zrq5o29oRE9+1md6cQVhn4s=
+        - secure: KCiOrgoMDUc0r7sTzdWKhna8HERg07+YY2+8pPXHCmpNNj/sH8hZBvfrChUYZBzkpVci08rpBwfpQTgkhtcYy4Omd6hA8pFKbEY3ZX/Lf6qNYThSbWbpO2gUDb6hooJkawcptQ+o+Mpu6pKqAdBwVRd21iW/KBCepnk6oH4iIdQW73KsvKQu6SCtGtFz6PxPDmrDn6nYm1yjiIV0DTd4fqZujczgMqyuJj4abnF8LV8jAO/+OLY2tUYVY5HbaJyNc+vK/q72npbAubjcLfeaDF+pCoPRYZXJyamd5l/vBPzF2og0eZ6Gux8iuRD3bLJUXfNhd+sCsmFq9XWqQ51zRzMRfF6Mw9lDdUs6ZA9uiq71G4stSai0Te6UKHZN0btlzI/dL+5gKDd1LK++VSIvBEQq0iCAk/e6PJ0/jGQVJC+6/hGY4RxgktJ3yeGyKwplF1i8kAOqjd6n4XYd7FFK99q2dXfVkXaDFhpIFYlACHcoqVC4G0cFUa47kX3xFgtpceGTr/truKeBeH1x8JRGHkTBZGdLJ7Mz5tbnk+GayUftCSOSfhcMfioI0cpuo96+7Dpr6Rf8nITStGJguvntlwzaCLRkprE+X4SdUZriWdvoBaoNpFf3O+N2Ja+9mkDQLKrxlc+cl/desx4773rc9eq0leZe6uiKp6QgJTu5wQY=
+        - secure: AePdg4RULINY5TK2182DHJsyj55iACFgvxtIhNfhDgrsR+GyqCnvH4Uo4YZmBzn9LP2y7nmd6IyFhzmz9c5ysS506zThcv4E3hvb1uIrkZVg4HZFUJzxHmgjWWtnpvGxwhFB61hGvgBh40Hc7q3iSpJfNDu8vZFo+qY1ZM+dm7y9gNGUjVeDx/sQUqtWUu3vuw0Nk5p0ELedTT7HrZb9n0FfYkSrolKQVc/ESCqTM2fq07oQM+JlotKpBmVPJEhIVqnMZNbqaXfLZqpNJPHT+OU9bOSwXi5m76PpXD5oJlvDjP+dBLD1EIL2kvIbSG+9Gg0fnLWZKCWkIgv6Btk9TM4TP/jUaHIIYKxwMhgBaoFaX7EtHR2IvH8S+v6B597udMJNSx6jcXZrtkXWi0mXY369pBu7DCJnyh4ZEKrIUZgc5QIWnKtw1EPX7eCSiUWW1AYwUMcYuX1uaX3cQuyRySZSHAMsdmMTvY71aMmQJjSJ4/jf+BnMt9TCycQTkWqDY41cp4PddECQFRX6bn9MInCRlU8Rx1Hd7YlunxIG+jqJQ5vyELWzA0zUk1rTpLlS6NTuZVRuJugZpQGY7UKKi7fvt97Q2Q06kWfWvgbyIt/QfnEcNduNfItI6so9h2PbX9emYmhmxGW+Lqwj1EkevOWY/OlNTP7yUgMCwfI8pyE=
+        - secure: A2IeJKRJO8S8apZU8Ktelo/oToAaRbgaaD+iopkq3wROG2DuJDj3HDjwlQS43LHsI/IbW6krn+hggs0MviHHtNKAVsBQTMyUAGH4YqshIaSHIw86DcDc0NOZBHDuxq7sMTO+XVg7s94VB0Lt0culPoN4NfwuuQ68QGfm7zFDQqH8EUQfkzLB9V0igaKuaoQURk6EDj1y6Sh+5EsK0vw7y/Vrg0Wsd/rAVws8Yw3CvBYITcCZnVMdvcJzvTmrJoQAh2WK7N4b7nRd0TYr8Mq2fweWFi2i6kY3CMotPICBNQuV5+ua5VsOCFMpRVGGcsGe7R21I5QVvghk7qIyXv4Gzbag0iOGaXgvvs3o6mL3bVrtphQt3Ejm4Dy4azgU+VY3yZQ/1V5vG3Q7jBhCpnPuNxhRnn4xjgsoWmzoi5zdk4WXh9ZzCR5Kuwb+HP2EK6Zdp7+D+ulfFWw+0hEl6VkkRa4taYvXL3M21wzZixJtPNDnSJ37Rgvai4ppwrlJ+0zqfBvpSQ8Ze2Krbuzs2H8IN2BbRMxmPFHAjn7icyCKkr/NuOj0676yG+Ut5QwCNHSnhsGtiKGcEuUqZ43wzKWoV+ESVLnQVFe+TxJpA2v04iiw2uyYFJH7TL0GJetzTw/nqpTOh47DJ8Hi3l1RfhnugPX4mmGimfMLGQNka1fAX88=
+        - secure: cVvFJp66xm+Rj6sk4X52QC5CDVMzAnWL5YM5DXNJSliTKr+lDifiUxKxBmGvBV21FQMNNJHArt9AsP1leomTjifp4eO4rTcyO+Fu8NKKXXfiYPRhtAA0Px/1ClYoYIf702+Abi+S8fS7pB0G45pqoq/hjrq1rMNhCco4ZVUpoTh+Tbb97Uh/7Dbn6hik51zet37vBarTYCB8YyMtpuK2Mo1oQmPhAiXg/x+ekZVOseQbcHAm9EFcWapKiC6/ClKFqRT14iN0QrVegFlj9uO6ixndVWuXjceG8qHo+/qL8FKvluUgR4WHSV2BYqBnFQs8DWyzD5OYCc3IrASul4yYZ6jV0BqoNHd5SpiWiRLu0z2rph/ZmO3DxOiGKUkTd98hguLT1pZUFtg76Ek7HjOFa95MgI+NA+JHBcUJgRzgKJ/woZiTVZkHOFnWb5RsGKak6ZZXYPUw28KDagA5Qy8Ze3hSHwM66yNJr37sIqhPl4JTbhqH744lqNrqz1HBw1KCM6wrPb5KDA0Upf/j/TP3xmVxR1rKBjnMedV60IDLQ5XcpzWEJIy0XIrsU04ve12dCyfExq93zZe9VPpaXSfidLkyUHSa/rDdl/I7Fk+gFUqp0Zf0CAj9wvAo8aTD071QHWsgq+as4IVlfuW77fCmqt702XKXrqbiN6fQTWm2YqM=
+        - secure: dFIAxahv/+FB+imvzFjsSYr0SYNBNDLbX3SPrICF+K3QxLVZUkN4VkO74Ve9iY7YUDw3JCOWTtrPX3s1WUxw2pwLkyJzwfnmaZ72qR/GusrxaYUDlBRCaEdkDNkAz1XPSLOBnDyyJhyPrg5Mb3VgI4VEC7+ntDKdzWZoeihITDZNencdRpnqvzz4SAQm+SqiioLg1tUXrFelEzC72Z4Rurp5KEb6zjI++DubHlFWzbVuPbQgBuRpdUe/gfGrCh4yh11h9cmuCGue5Tc8sITDYvWW4wHMxLhr1+iaa/ygrwR+977UHliKvttDi4m6+OAsfa8SabJEUmVtEQ8R1S8vKkg4+oLB+UtxsZoU0WsdrEMlntR5XEf2dJyNoQdNKGhxDqAEEP0kDd0Nt6Gbr4/Z3HjaAOkQwi9pjYAI44BIcKcAVgdZOBNMZEddpmg/ZE6EjsXDxnZkurMEfd8L6XNMvFL7apQJQdAiZHW/43cm+pWxnlaMbvKNVy1vUcsgultmL08hKKhh9YUE0OytHxWi9nPd0WzMXcxxvawMn4yaLARJPCi/MRH+SVKfVH4BjyeCI6q/fZ6G/8amwJ8jL/FlEHRX5wlyx9PJmN/GCE7Zbs6JetEqCgNWFo+bQRAlBfCu/jXB4m7S22+J2DyvDGHQNwjWqvuMfEoPiM5xD3bog/w=
+      before_install:
+        - if [ ! -d $HOME/google-cloud-sdk/bin ]; then rm -rf $HOME/google-cloud-sdk; curl
+          https://sdk.cloud.google.com | bash > /dev/null; fi
+        - source $HOME/google-cloud-sdk/path.bash.inc
+        - gcloud components update kubectl
+        - gcloud version
+      deploy:
+        skip_cleanup: true
+        provider: script
+        script: bash infrastructure/push_image_gcr.sh
+        on:
+          branch: dockerize_service
