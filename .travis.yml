@@ -24,6 +24,7 @@ jobs:
           - DB_PASSWORD=password
       before_install:
         - docker-compose -f infrastructure/docker-compose-services.yml up -d
+        - chmod +x mvnw
       script:
         - "./mvnw clean install"
     - stage: deploy
