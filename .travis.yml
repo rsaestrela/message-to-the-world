@@ -30,6 +30,7 @@ before_install:
 script:
   - ./mvnw clean install
 deploy:
+  skip_cleanup: true
   provider: script
   script: bash infrastructure/push_image_gcr.sh
   on:
