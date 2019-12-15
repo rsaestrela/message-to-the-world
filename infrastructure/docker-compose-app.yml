@@ -3,7 +3,7 @@ services:
   app:
     container_name: mttw-app
     build:
-      context: ""
+      context: ../
       dockerfile: Dockerfile
       args:
         - VERSION=${VERSION}
