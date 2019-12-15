@@ -1,10 +1,7 @@
 sudo: required
 dist: trusty
-language: java
 services:
   - docker
-jdk:
-  - oraclejdk8
 stages:
   - build
   - name: deploy
@@ -12,6 +9,9 @@ stages:
 jobs:
   include:
     - stage: build
+      language: java
+      jdk:
+        - oraclejdk8
       env:
         - MB_URL="tcp://localhost:61616?jms.redeliveryPolicy.maximumRedeliveries=1"
         - MB_USER=admin
