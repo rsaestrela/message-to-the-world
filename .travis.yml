@@ -4,8 +4,7 @@ services:
   - docker
 stages:
   - build
-  - name: deploy
-    if: branch = dockerize_service
+  - deploy
 jobs:
   include:
     - stage: build
