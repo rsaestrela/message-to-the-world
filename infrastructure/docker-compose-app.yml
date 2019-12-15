@@ -6,7 +6,6 @@ services:
       context: ../
       dockerfile: Dockerfile
       args:
-        - VERSION=${VERSION}
         - PORT=${PORT}
     ports:
       - ${PORT}:${PORT}
