@@ -159,7 +159,7 @@
 								</generate>
 								<database>
 									<name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
-									<inputSchema>PUBLIC</inputSchema>
+									<inputSchema>API</inputSchema>
 									<outputSchemaToDefault>true</outputSchemaToDefault>
 									<outputCatalogToDefault>true</outputCatalogToDefault>
 									<properties>
