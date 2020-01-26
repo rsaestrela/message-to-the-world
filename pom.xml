@@ -160,8 +160,8 @@
 								<database>
 									<name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
 									<inputSchema>API</inputSchema>
-									<outputSchemaToDefault>true</outputSchemaToDefault>
-									<outputCatalogToDefault>true</outputCatalogToDefault>
+									<outputSchemaToDefault>false</outputSchemaToDefault>
+									<outputCatalogToDefault>false</outputCatalogToDefault>
 									<properties>
 										<property>
 											<key>sort</key>
