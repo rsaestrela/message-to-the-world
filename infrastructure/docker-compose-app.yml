@@ -6,15 +6,13 @@ services:
       context: ../
       dockerfile: Dockerfile
       args:
-        - PORT=${PORT}
+        SERVER_PORT: ${PORT}
+        SPRING_DATASOURCE_URL: ${DB_URL}
+        SPRING_DATASOURCE_USERNAME: ${DB_USER}
+        SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+        SPRING_ACTIVE_MQ_BROKER-URL: ${MB_URL}
+        SPRING_ACTIVE_MQ_USER: ${MB_USER}
+        SPRING_ACTIVE_MQ_PASSWORD: ${MB_PASSWORD}
     ports:
       - ${PORT}:${PORT}
-    environment:
-      SERVER_PORT: ${PORT}
-      SPRING_DATASOURCE_URL: ${DB_URL}
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_ACTIVE_MQ_BROKER-URL: ${MB_URL}
-      SPRING_ACTIVE_MQ_USER: ${MB_USER}
-      SPRING_ACTIVE_MQ_PASSWORD: ${MB_PASSWORD}
     network_mode: "host"
